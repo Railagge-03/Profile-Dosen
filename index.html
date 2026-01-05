@@ -1,116 +1,217 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UAS IMK - Portfolio Project</title>
-    
+    <title>Sifadu | Profil Dosen & Tenaga Kerja Profesional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm py-3">
         <div class="container">
-            <a class="navbar-brand" href="#">Home</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <a class="navbar-brand fw-bold text-primary" href="#">
+                <i class="fas fa-university me-2"></i>SIFADU.
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#portfolio">Portfolio</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link mx-2 fw-semibold active" href="#">Beranda</a></li>
+                    <li class="nav-item dropdown ms-lg-3">
+                        <button class="btn btn-primary rounded-pill px-4 dropdown-toggle" id="btnUser" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-1"></i> Login Kampus
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3 rounded-4">
+                            <li><a class="dropdown-item py-2" href="#" onclick="setRole('mahasiswa')"><i class="fas fa-user-grad me-2"></i>Mahasiswa</a></li>
+                            <li><a class="dropdown-item py-2" href="#" onclick="setRole('dosen')"><i class="fas fa-chalkboard-teacher me-2"></i>Dosen</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item py-2 text-danger" href="#" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <section id="home" class="hero-section">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-6">
-                    <h1 class="display-4 fw-bold">Build Simple. <br>Think Elegant.</h1>
-                    <p class="lead text-muted">Simple website for modern life.</p>
-                    <div class="mt-4">
-                        <button class="btn btn-custom-dark me-2">Get Started</button>
-                        <button class="btn btn-outline-custom">Explore</button>
+    <header class="hero-section text-center py-5">
+        <div class="container py-lg-4">
+            <div id="welcomeMsg" class="mb-3"></div>
+            <h1 class="display-5 fw-bold mb-3">Profil <span class="text-primary">Tenaga Kerja</span> Profesional.</h1>
+            <p class="text-muted mx-auto mb-4" style="max-width: 600px;">Gunakan sistem direktori untuk menemukan profil dosen, pembimbing skripsi, atau tenaga ahli sesuai bidang riset Anda.</p>
+            
+            <div class="row justify-content-center">
+                <div class="col-lg-7 col-md-10">
+                    <div class="search-container p-2 bg-white rounded-pill shadow-sm border d-flex align-items-center">
+                        <i class="fas fa-search text-muted ms-3"></i>
+                        <input type="text" id="searchInput" class="form-control border-0 bg-transparent ps-3" 
+                               placeholder="Cari nama dosen atau bidang keahlian..." onkeyup="renderDosen()">
                     </div>
-                </div>
-                <div class="col-lg-6 text-center">
-                    <img src="https://via.placeholder.com/500x400" class="img-fluid" alt="Hero Illustration">
+                    <div id="searchCount" class="small text-muted mt-2">Memuat data...</div>
                 </div>
             </div>
         </div>
-    </section>
+    </header>
 
-    <section id="about" class="py-5">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-5">
-                    <img src="https://via.placeholder.com/400x400" class="img-fluid rounded-4 shadow" alt="Profile">
+    <div class="container py-5">
+        <div class="row g-4" id="lecturerGrid">
+            </div>
+        
+        <div id="noResult" class="text-center py-5" style="display:none;">
+            <i class="fas fa-search-minus fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">Dosen tidak ditemukan.</h5>
+            <p class="small text-muted">Coba gunakan kata kunci lain seperti nama atau gelar.</p>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalKonsul" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header border-0 pb-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="col-md-7 ps-md-5">
-                    <h2 class="section-title mt-4">About Me</h2>
-                    <p>Saya adalah web developer yang berfokus pada desain yang simpel dan elegan.</p>
-                    <ul class="list-unstyled">
-                        <li><i class="bi bi-check2-circle me-2 text-primary"></i> UI/UX Design</li>
-                        <li><i class="bi bi-check2-circle me-2 text-primary"></i> Web Development</li>
-                        <li><i class="bi bi-check2-circle me-2 text-primary"></i> Creative Solutions</li>
-                    </ul>
+                <div class="modal-body p-4 pt-0 text-center">
+                    <div class="icon-box mb-3 mx-auto">
+                        <i class="fas fa-paper-plane text-primary fa-2x"></i>
+                    </div>
+                    <h4 class="fw-bold">Ajukan Pertemuan</h4>
+                    <p class="text-muted small">Mengirim pesan kepada: <br><span id="namaDosenTarget" class="fw-bold text-dark text-uppercase"></span></p>
+                    <form id="formBimbingan" class="text-start mt-4">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary">Nomor Induk Mahasiswa (NIM)</label>
+                            <input type="number" class="form-control form-control-lg rounded-3 fs-6" placeholder="Contoh: 2104xxxx" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary">Isi Pesan</label>
+                            <textarea class="form-control rounded-3" rows="3" placeholder="Halo Bapak/Ibu, saya ingin bimbingan..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-3 shadow-sm">Kirim Sekarang</button>
+                    </form>
                 </div>
             </div>
         </div>
-    </section>
-
-    <section id="services" class="py-5 bg-light">
-        <div class="container text-center">
-            <h2 class="section-title">My Services</h2>
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="card p-4 h-100">
-                        <i class="bi bi-rocket-takeoff fs-1 text-primary mb-3"></i>
-                        <h5>Fast Performance</h5>
-                        <p class="text-muted small">Optimized for speed</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card p-4 h-100">
-                        <i class="bi bi-shield-check fs-1 text-primary mb-3"></i>
-                        <h5>Secure System</h5>
-                        <p class="text-muted small">Data Protection</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card p-4 h-100">
-                        <i class="bi bi-brush fs-1 text-primary mb-3"></i>
-                        <h5>Clean Design</h5>
-                        <p class="text-muted small">Modern & Intuitive</p>
-                    </div>
-                </div>
-            </div>
-            <button class="btn btn-custom-dark mt-5">View More</button>
-        </div>
-    </section>
-
-    <section id="portfolio" class="py-5">
-        <div class="container text-center">
-            <h2 class="section-title">My Portfolio</h2>
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="card p-2">
-                        <img src="https://via.placeholder.com/300x200" class="card-img-top portfolio-img" alt="Project 1">
-                        <div class="card-body"><h6 class="fw-bold">Project One</h6></div>
-                    </div>
-                </div>
-                </div>
-        </div>
-    </section>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+	<script>
+    const dataDosen = [
+        { "nama": "Dr. Abdul Karim, M.Ag.", "nip": "197402112002011006", "info": "S3 Pemikiran Islam – UIN Yogyakarta", "email": "abdul.karim@kampus.ac.id" },
+        { "nama": "Lina Oktaviani, S.Kom., M.T.", "nip": "198811182016022007", "info": "S2 Teknik Informatika – ITS", "email": "lina.oktaviani@kampus.ac.id" },
+        { "nama": "Dr. Farhan Al-Hakim, Lc., M.H.I.", "nip": "197909042009011008", "info": "S3 Hukum Keluarga Islam – UIN Jakarta", "email": "farhan.hakim@kampus.ac.id" },
+        { "nama": "Rudi Santoso, S.T., M.Eng.", "nip": "198504232012021009", "info": "S2 Electrical Engineering – NTUST", "email": "rudi.santoso@kampus.ac.id" },
+        { "nama": "Dr. Syarif Hidayat, S.H., M.H.", "nip": "197612172004011010", "info": "S3 Ilmu Hukum – UNPAD", "email": "syarif.hidayat@kampus.ac.id" },
+        { "nama": "Dewi Lestari, S.Psi., M.Psi.", "nip": "198906252017022011", "info": "S2 Psikologi Pendidikan – UGM", "email": "dewi.lestari@kampus.ac.id" },
+        { "nama": "Dr. Hasan Basri, M.Si.", "nip": "197305142001011012", "info": "S3 Sosiologi – UGM", "email": "hasan.basri@kampus.ac.id" },
+        { "nama": "Ahmad Ridwan, S.Pd., M.Pd.", "nip": "198710112014022013", "info": "S2 Pendidikan Bahasa – UNY", "email": "ahmad.ridwan@kampus.ac.id" },
+        { "nama": "Dr. Nabila Zahra, S.S., M.Hum.", "nip": "198308192009012014", "info": "S3 Linguistik Terapan – UI", "email": "nabila.zahra@kampus.ac.id" },
+        { "nama": "Yusuf Maulana, S.E., M.Ak.", "nip": "198912032018022015", "info": "S2 Akuntansi – UGM", "email": "yusuf.maulana@kampus.ac.id" },
+        { "nama": "Dr. Miftahul Ulum, M.Pd.I.", "nip": "197811062006011016", "info": "S3 Pendidikan Islam – UIN Jakarta", "email": "miftahul.ulum@kampus.ac.id" },
+        { "nama": "Ratna Puspitasari, S.Kom., M.Cs.", "nip": "198705292013022017", "info": "S2 Ilmu Komputer – UGM", "email": "ratna.puspitasari@kampus.ac.id" },
+        { "nama": "Dr. Bima Prakoso, S.Si., M.Sc.", "nip": "197902142008011018", "info": "S3 Matematika – ITB", "email": "bima.prakoso@kampus.ac.id" },
+        { "nama": "Fajar Nugroho, S.T., M.T.", "nip": "198610182012021019", "info": "S2 Teknik Sipil – ITS", "email": "fajar.nugroho@kampus.ac.id" },
+        { "nama": "Dr. Salma Khairunnisa, S.Pd., M.Ed.", "nip": "198203072008012020", "info": "S3 Pendidikan Bahasa – UPI", "email": "salma.khairunnisa@kampus.ac.id" }
+    ];
+
+    const myModal = new bootstrap.Modal(document.getElementById('modalKonsul'));
+
+    function renderDosen() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        const grid = document.getElementById('lecturerGrid');
+        const noResult = document.getElementById('noResult');
+        const countText = document.getElementById('searchCount');
+        const currentRole = localStorage.getItem('userRole');
+        
+        grid.innerHTML = '';
+        
+        let filtered = dataDosen.filter(d => 
+            d.nama.toLowerCase().includes(query) || 
+            d.info.toLowerCase().includes(query)
+        );
+
+        filtered.forEach(d => {
+            const card = `
+                <div class="col-lg-4 col-md-6">
+                    <div class="card card-lecturer border-0 shadow-sm h-100">
+                        <div class="card-img-top-wrapper">
+                            <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(d.nama)}&background=random&size=128" class="card-img-top" alt="Dosen">
+                        </div>
+                        <div class="card-body d-flex flex-column text-center">
+                            <h5 class="fw-bold mb-1">${d.nama}</h5>
+                            <p class="text-primary small mb-3"><i class="fas fa-id-card me-1"></i> ${d.nip}</p>
+                            <p class="text-muted small">${d.info}</p>
+                            <div class="mt-auto pt-3 border-top d-flex justify-content-between">
+                                <a href="mailto:${d.email}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">Email</a>
+                                <button class="btn btn-sm btn-primary rounded-pill px-3 btn-konsultasi" 
+                                        data-nama="${d.nama}" 
+                                        style="${currentRole === 'dosen' ? 'display:none' : 'display:inline-block'}">
+                                    Konsultasi
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            grid.insertAdjacentHTML('beforeend', card);
+        });
+
+        countText.innerText = `Menampilkan ${filtered.length} profil profesional`;
+        noResult.style.display = filtered.length === 0 ? 'block' : 'none';
+    }
+
+    function updateUI() {
+        const role = localStorage.getItem('userRole');
+        const welcomeBox = document.getElementById('welcomeMsg');
+        const btnUser = document.getElementById('btnUser');
+
+        if (role === 'dosen') {
+            welcomeBox.innerHTML = `<span class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold"><i class="fas fa-user-shield me-1"></i> Mode Dosen</span>`;
+            btnUser.innerHTML = `<i class="fas fa-chalkboard-teacher me-1"></i> Panel Dosen`;
+        } else if (role === 'mahasiswa') {
+            welcomeBox.innerHTML = `<span class="badge rounded-pill bg-success px-3 py-2 fw-bold"><i class="fas fa-user-graduate me-1"></i> Akses Mahasiswa</span>`;
+            btnUser.innerHTML = `<i class="fas fa-user-grad me-1"></i> Mahasiswa`;
+        } else {
+            welcomeBox.innerHTML = '';
+            btnUser.innerHTML = `<i class="fas fa-user-circle me-1"></i> Login Kampus`;
+        }
+    }
+
+    function setRole(role) {
+        localStorage.setItem('userRole', role);
+        updateUI();
+        renderDosen();
+        alert('Status diubah ke: ' + role.toUpperCase());
+    }
+
+    function logout() {
+        localStorage.removeItem('userRole');
+        location.reload();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        updateUI();
+        renderDosen();
+    });
+
+    document.addEventListener('click', function (e) {
+        if (e.target && e.target.classList.contains('btn-konsultasi')) {
+            const role = localStorage.getItem('userRole');
+            if (!role) {
+                alert('Silakan login sebagai Mahasiswa terlebih dahulu!');
+                return;
+            }
+            document.getElementById('namaDosenTarget').innerText = e.target.getAttribute('data-nama');
+            myModal.show();
+        }
+    });
+
+    document.getElementById('formBimbingan').addEventListener('submit', function(e) {
+        e.preventDefault();
+        alert('Permohonan bimbingan terkirim!');
+        myModal.hide();
+        this.reset();
+    });
+</script>
+
